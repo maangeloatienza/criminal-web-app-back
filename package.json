@@ -1,0 +1,23 @@
+{
+  "name": "criminal-web-app",
+  "version": "1.0.0",
+  "description": "Criminal web app for real calamba",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "jrm",
+  "license": "ISC",
+  "dependencies": {
+    "anytv-node-mysql": "0.0.57",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "passport": "^0.4.0"
+  },
+  "devDependencies": {
+    "ws": "3.3.2"
+  }
+}
