@@ -17,6 +17,16 @@ const user  = {
     _role_id      : ''
 }
 
+const opt_user = {
+    _first_name   : '',
+    _last_name    : '',
+    _username    : '',
+    _email       : '',
+    _password    : '',
+    _phone_number : '',
+    _role_id      : ''
+}
+
 
 
 const getUsers = (req,res,next)=>{
@@ -195,9 +205,82 @@ const createUser = (req,res,next)=>{
     start();
 }
 
+const updateUser = (req,res,next)=>{
+    const data = util._get
+    .form_data(opt_user)
+    .from(req.body);
+    let id = req.params.id;
+
+    if(data instanceof Error){
+        return res.json({
+            message : data.message,
+            context : INC_DATA
+        })
+        .status(500);
+    }
+
+    function start(){
+        mysql.use('master')
+            .query(`SELECT * FROM users WHERE id=${id}`,update_user)
+            .end();
+    }
+    function update_user(err,result,args,last_query){
+        if(err){
+            return res.json({
+                message : BAD_REQ,
+                context : err,
+                query : last_query
+            }).status(500);
+        }
+
+        if(!result.length){
+            return res.json({
+                message : 'User does not exist',
+                context : ZERO_RES
+            })
+            .status(404);
+        }
+        data.updated = new Date();
+        mysql.use('master')
+            .query(`UPDATE users SET ?`,
+            [data],
+            send_response
+            )
+            .end();
+    }
+
+    function send_response(err,result,args,last_query){
+        if(err){
+            return res.json({
+                message : BAD_REQ,
+                context : err,
+                query : last_query
+            }).status(500);
+        }
+
+        if(!result.affectedRows){
+            return res.json({
+                message : 'Fail to update user information',
+                context : NO_RECORD_UPDATED
+            })
+            .status(400);
+        }
+
+        return res.json({
+            data : data,
+            message : 'Success!'
+        })
+        .status(200)
+        .send();
+    }
+
+    start();
+}
+
 
 module.exports = {
     getUsers,
     getUserById,
-    createUser
+    createUser,
+    updateUser
 }
