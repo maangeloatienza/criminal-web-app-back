@@ -4,7 +4,9 @@ const bcrypt            = require('bcryptjs');
 const mysql             = require('anytv-node-mysql');
 const util              = require('./../helpers/util');
 const uuidv4            = require('uuid/v4');
+const jwt               = require('jsonwebtoken');
                           require('./../config/err_config');
+                          require('./../config/config');
 
 
 const user  = {
@@ -25,6 +27,11 @@ const opt_user = {
     _password    : '',
     _phone_number : '',
     _role_id      : ''
+}
+
+const user_login = {
+    username : '',
+    password : ''
 }
 
 
@@ -211,15 +218,15 @@ const updateUser = (req,res,next)=>{
     .from(req.body);
     let id = req.params.id;
 
-    if(data instanceof Error){
-        return res.json({
-            message : data.message,
-            context : INC_DATA
-        })
-        .status(500);
-    }
 
     function start(){
+        if(data instanceof Error){
+            return res.json({
+                message : data.message,
+                context : INC_DATA
+            })
+            .status(500);
+        }
         mysql.use('master')
             .query(`SELECT * FROM users WHERE id=${id}`,update_user)
             .end();
@@ -272,6 +279,89 @@ const updateUser = (req,res,next)=>{
         })
         .status(200)
         .send();
+    }
+
+    start();
+}
+
+const login = (req,res,next)=>{
+    const data = util._get
+    .form_data(user_login)
+    .from(req.body);
+    let userData = {};
+    function start(){
+        if(data instanceof Error){
+            return res.json({
+                message : data.message,
+                context : INC_DATA
+            })
+            .status(500);
+        }
+
+        mysql.user('master')
+            .query(`SELECT * FROM user
+                    WHERE username = ${data.username}
+                `,
+                validate_password
+                )
+                .end();
+    }
+
+    function validate_password(err,result,args,last_query){
+        if(err){
+            return res.json({
+                message : BAD_REQ,
+                context : err,
+                query : last_query
+            }).status(500);
+        }
+
+        if(!result.length){
+            return res.json({
+                message : 'User does not exists',
+                context : ZERO_RES
+            })
+            .status(404);
+        }
+
+        bcrypt.compare(data.password,hash,(err,res)=>{
+            if(err){
+                return res.jsonon({
+                    message : 'Login failed',
+                    context : LOG_FAIL,
+                    error : err
+                })
+            }
+            
+            if(data.password != result.password){
+                return res.json({
+                    message : 'Invalid username/password',
+                    context : INV_PASS
+                })
+                .status(500);
+            }
+            if(res){
+                const token = jwt.sign({
+                    first_name  : result.first_name,
+                    last_name   : result.last_name,
+                    username    : result.username,
+                    email       : result.email,
+                    phone_number: result.phone_number
+                },JWT_TOKEN,{
+                    expiresIn   : '7d'
+                });
+    
+                return res.status(200).json({
+                    message     : 'loggedInSuccess',
+                    data        : result,
+                    token       : token,
+                    success     : true
+                })
+                .status(200)
+                .send();
+            }
+            
+        });
     }
 
     start();
