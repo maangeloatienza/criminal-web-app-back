@@ -74,14 +74,13 @@ const getUsers = (req,res,next)=>{
 }
 
 const getUserById = (req,res,next)=>{
-
+    const id = req.params.id;
     function start(){
-        const {
-            id
-        } = req.params.id;
+
         mysql.use('master')
         .query(
-            `SELECT * FROM users WHERE id = ${id}`,
+            `SELECT * FROM users WHERE id = ?`,
+            [req.params.id],
             send_response
         )
         .end();
@@ -152,30 +151,30 @@ const createUser = (req,res,next)=>{
         data.id = uuidv4();
         data.created = new Date();
         data.role_id = data.role_id? data.role_id : null;
-        bcrypt.genSalt(10, function(err,salt) {
-            bcrypt.hash(data.password, salt, function(err, hash) {
-                if(err) console.log(err);
-                password = hash;
-                mysql.use('master')
-                .query(`INSERT INTO users(id,first_name,last_name,username,email,password,phone_number,role_id,created,updated)\
-                        VALUES (?,?,?,?,?,?,?,?,?,?)`,
-                    [
-                        data.id,
-                        data.first_name,
-                        data.last_name,
-                        data.username,
-                        data.email,
-                        password,
-                        data.phone_number,
-                        data.role_id,
-                        data.created,
-                        null
-                    ],
-                    send_response
-                )
-                .end();
-            });
+
+        bcrypt.hash(data.password, 10, function(err, hash) {
+            if(err) console.log(err);
+            password = hash;
+            mysql.use('master')
+            .query(`INSERT INTO users(id,first_name,last_name,username,email,password,phone_number,role_id,created,updated)\
+                    VALUES (?,?,?,?,?,?,?,?,?,?)`,
+                [
+                    data.id,
+                    data.first_name,
+                    data.last_name,
+                    data.username,
+                    data.email,
+                    password,
+                    data.phone_number,
+                    data.role_id,
+                    data.created,
+                    null
+                ],
+                send_response
+            )
+            .end();
         });
+
 
     }
 
@@ -298,10 +297,8 @@ const login = (req,res,next)=>{
             .status(500);
         }
 
-        mysql.user('master')
-            .query(`SELECT * FROM user
-                    WHERE username = ${data.username}
-                `,
+        mysql.use('master')
+            .query(`SELECT * FROM users WHERE username = '${data.username}'`,
                 validate_password
                 )
                 .end();
@@ -324,37 +321,47 @@ const login = (req,res,next)=>{
             .status(404);
         }
 
-        bcrypt.compare(data.password,hash,(err,res)=>{
+        let userData = {                    
+                first_name  : result[0].first_name,
+                last_name   : result[0].last_name,
+                username    : result[0].username,
+                email       : result[0].email,
+                phone_number: result[0].phone_number
+            };
+        
+
+        bcrypt.compare(data.password,result[0].password,(err,resp)=>{
+
             if(err){
-                return res.jsonon({
+                return res.json({
                     message : 'Login failed',
                     context : LOG_FAIL,
                     error : err
                 })
             }
             
-            if(data.password != result.password){
+            if(!resp){
                 return res.json({
                     message : 'Invalid username/password',
                     context : INV_PASS
                 })
                 .status(500);
             }
-            if(res){
+            if(resp){
                 const token = jwt.sign({
-                    first_name  : result.first_name,
-                    last_name   : result.last_name,
-                    username    : result.username,
-                    email       : result.email,
-                    phone_number: result.phone_number
+                    first_name  : result[0].first_name,
+                    last_name   : result[0].last_name,
+                    username    : result[0].username,
+                    email       : result[0].email,
+                    phone_number: result[0].phone_number
                 },JWT_TOKEN,{
                     expiresIn   : '7d'
                 });
     
                 return res.status(200).json({
-                    message     : 'loggedInSuccess',
-                    data        : result,
-                    token       : token,
+                    message     : 'Success',
+                    data        : userData,
+                    token       : `Bearer ${token}`,
                     success     : true
                 })
                 .status(200)
