@@ -47,7 +47,7 @@ const getUsers = (req,res,next)=>{
         .end();
     }
     function send_response(err,result,args,last_query){
-
+        console.log(req.user);
         if(err){
             return res.json({
                 message : BAD_REQ,
