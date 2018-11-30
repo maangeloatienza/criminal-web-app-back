@@ -2,7 +2,7 @@ FROM node:8.11
 
 WORKDIR /criminal-watch
 
-ADD ./criminal-watch
+ADD . /criminal-watch
 
 RUN npm install nodemon -g
 
