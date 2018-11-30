@@ -1,5 +1,13 @@
-FROM ubuntu
+FROM node:8.11
 
-COPY script.sh /script.sh
+WORKDIR /criminal-watch
 
-CMD /script.sh
+ADD . /criminal-watch
+
+RUN npm install nodemon -g
+
+RUN npm install
+
+EXPOSE $PORT
+
+CMD [ "nodemon"]
