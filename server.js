@@ -8,7 +8,7 @@ const socket            = require('socket.io');
 
 let server = http.createServer(app);
 
-server.listen(PORT,()=>{
+server.listen(process.env.PORT || PORT,()=>{
   console.log(`SERVER LISTENING ON PORT ${PORT}`);
 }); 
 
