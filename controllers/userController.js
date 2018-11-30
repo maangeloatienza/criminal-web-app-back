@@ -36,6 +36,18 @@ const user_login = {
 }
 
 
+/**
+ * @api {get} /users            Request User information
+ * @apiName GetUser
+ * @apiGroup Users
+ *
+ * 
+ * @apiSuccess {String}   first_name  First name of the user
+ * @apiSuccess {String}   last_name   Last name of the user
+ * @apiSuccess {String}   username    Username of the user
+ */
+
+
 
 const getUsers = (req,res,next)=>{
     const {
