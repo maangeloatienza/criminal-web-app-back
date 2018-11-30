@@ -21,4 +21,8 @@ INVALID_USER= 'Username is already in use',
 INVALID_COURIER= 'Courier not found',
 DUP_ENTRY='Duplicate insert entry',
 NO_PASS= 'No password is found',
-BAD_REQ = 'Bad request'
+BAD_REQ = 'Bad request',
+EXISTING = 'Already exist',
+ERR_CREATING = 'Error creating data',
+ERR_UPDATING = 'Error updating data'
+

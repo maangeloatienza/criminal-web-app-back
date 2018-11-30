@@ -1,17 +1,5 @@
-FROM node:8.11
+FROM ubuntu
 
-WORKDIR /criminal-watch
+COPY script.sh /script.sh
 
-ADD . /criminal-watch
-
-RUN npm install -g forever
-
-RUN npm install -g apidoc
-
-RUN npm install
-
-RUN npm run doc
-
-EXPOSE 3000
-
-CMD [ "npm", "run", "forever" ]
+CMD /script.sh

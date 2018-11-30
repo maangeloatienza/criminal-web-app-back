@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
         next();
     } catch (error) {
         return res.status(401).json({
-            code: NO_TOKEN
+            message : NO_TOKEN
         });
     }
 };

@@ -6,6 +6,7 @@ MYSQL_PASSWORD = '12345';
 MYSQL_DATABASE = 'criminal_watch_db';
 
 JWT_TOKEN      = 'secret_key';
+SECRET_KEY     = 'secret';
 
 
 

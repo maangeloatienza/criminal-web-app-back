@@ -5,6 +5,7 @@ const mysql             = require('anytv-node-mysql');
 const util              = require('./../helpers/util');
 const uuidv4            = require('uuid/v4');
 const jwt               = require('jsonwebtoken');
+const err_response      = require('./../libraries/response').err_response;
                           require('./../config/err_config');
                           require('./../config/config');
 
@@ -37,8 +38,15 @@ const user_login = {
 
 
 const getUsers = (req,res,next)=>{
-
+    const {
+        username,
+        first_name,
+        last_name
+    } = req.query;
     function start(){
+
+
+
         mysql.use('master')
         .query(
             `SELECT * FROM users`,
@@ -47,20 +55,12 @@ const getUsers = (req,res,next)=>{
         .end();
     }
     function send_response(err,result,args,last_query){
-        console.log(req.user);
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
 
         if(!result.length){
-            return res.json({
-                message : 'No results found',
-                context : ZERO_RES
-            }).status(404);
+            return err_response(res,ZERO_RES,ZERO_RES,404);
         }
 
         return res.json({
@@ -86,23 +86,15 @@ const getUserById = (req,res,next)=>{
         .end();
     }
     function send_response(err,result,args,last_query){
-
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
 
         if(!result.length){
-            return res.json({
-                message : 'No results found',
-                context : ZERO_RES
-            }).status(404);
+            return err_response(res,ZERO_RES,ZERO_RES,404);
         }
 
-        return res.json({
+        return res.status(200).json({
             message : 'Success!',
             data : result
         })
@@ -120,11 +112,7 @@ const createUser = (req,res,next)=>{
     let password = '';
     function start(){
         if(data instanceof Error){
-            return res.json({
-                message : data.message,
-                context : INC_DATA
-            })
-            .status(500);
+            return err_response(res,data.message,INC_DATA,500);
         }
         mysql.use('master')
             .query(`SELECT * FROM users where username = '${data.username}'`,create_user)
@@ -133,43 +121,24 @@ const createUser = (req,res,next)=>{
 
     function create_user(err,result,args,last_query){
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
 
-        if(result.length){
-            return res.json({
-                message : 'Username already exists',
-                context : DUP_ENTRY
-            })
-            .status(500);
+        if(!result.length){
+            return err_response(res,ZERO_RES,ZERO_RES,404);
         }
         
         data.id = uuidv4();
         data.created = new Date();
+        data.updated = null;
         data.role_id = data.role_id? data.role_id : null;
 
         bcrypt.hash(data.password, 10, function(err, hash) {
             if(err) console.log(err);
             password = hash;
             mysql.use('master')
-            .query(`INSERT INTO users(id,first_name,last_name,username,email,password,phone_number,role_id,created,updated)\
-                    VALUES (?,?,?,?,?,?,?,?,?,?)`,
-                [
-                    data.id,
-                    data.first_name,
-                    data.last_name,
-                    data.username,
-                    data.email,
-                    password,
-                    data.phone_number,
-                    data.role_id,
-                    data.created,
-                    null
-                ],
+            .query(`INSERT INTO users SET ?`,
+                data,
                 send_response
             )
             .end();
@@ -180,22 +149,14 @@ const createUser = (req,res,next)=>{
 
     function send_response(err,result,args,last_query){
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
 
         if(!result.affectedRows){
-            return res.json({
-                message : 'Error creating user',
-                context : NO_RECORD_CREATED
-            })
-            .status(400);
+            return err_response(res,ERR_CREATING,NO_RECORD_CREATED,402)
         }
 
-        return res.json({
+        return res.status(200).json({
             data : {
                 firstName : data.first_name,
                 lastName : data.last_name,
@@ -204,7 +165,6 @@ const createUser = (req,res,next)=>{
             },
             message : 'Success'
         })
-        .status(200)
         .send();
     }
 
@@ -220,11 +180,7 @@ const updateUser = (req,res,next)=>{
 
     function start(){
         if(data instanceof Error){
-            return res.json({
-                message : data.message,
-                context : INC_DATA
-            })
-            .status(500);
+            return err_response(res,data.message,INC_DATA,500);
         }
         mysql.use('master')
             .query(`SELECT * FROM users WHERE id=${id}`,update_user)
@@ -232,19 +188,11 @@ const updateUser = (req,res,next)=>{
     }
     function update_user(err,result,args,last_query){
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
 
         if(!result.length){
-            return res.json({
-                message : 'User does not exist',
-                context : ZERO_RES
-            })
-            .status(404);
+            return err_response(res,ZERO_RES,ZERO_RES,404);
         }
         data.updated = new Date();
         mysql.use('master')
@@ -257,26 +205,16 @@ const updateUser = (req,res,next)=>{
 
     function send_response(err,result,args,last_query){
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
-
         if(!result.affectedRows){
-            return res.json({
-                message : 'Fail to update user information',
-                context : NO_RECORD_UPDATED
-            })
-            .status(400);
+            return err_response(res,ERR_UPDATING,NO_RECORD_UPDATED,402)
         }
 
-        return res.json({
+        return res.status(200).json({
             data : data,
             message : 'Success!'
         })
-        .status(200)
         .send();
     }
 
@@ -284,21 +222,22 @@ const updateUser = (req,res,next)=>{
 }
 
 const login = (req,res,next)=>{
+
     const data = util._get
     .form_data(user_login)
     .from(req.body);
     let userData = {};
     function start(){
         if(data instanceof Error){
-            return res.json({
-                message : data.message,
-                context : INC_DATA
-            })
-            .status(500);
+            return err_response(res,data.message,INC_DATA,500);
         }
-
+        console.log(req.body.username);
         mysql.use('master')
-            .query(`SELECT * FROM users WHERE username = '${data.username}'`,
+            .query(`SELECT user.*,role.* FROM users user
+                    LEFT JOIN roles role
+                    ON role.id = user.role_id
+                    WHERE user.username = ?`,
+                data.username,
                 validate_password
                 )
                 .end();
@@ -306,19 +245,11 @@ const login = (req,res,next)=>{
 
     function validate_password(err,result,args,last_query){
         if(err){
-            return res.json({
-                message : BAD_REQ,
-                context : err,
-                query : last_query
-            }).status(500);
+            return err_response(res,BAD_REQ,err,500);
         }
-
+;       console.log(result);
         if(!result.length){
-            return res.json({
-                message : 'User does not exists',
-                context : ZERO_RES
-            })
-            .status(404);
+            return err_response(res,ZERO_RES,ZERO_RES,404);
         }
 
         let userData = {                    
@@ -333,19 +264,11 @@ const login = (req,res,next)=>{
         bcrypt.compare(data.password,result[0].password,(err,resp)=>{
 
             if(err){
-                return res.json({
-                    message : 'Login failed',
-                    context : LOG_FAIL,
-                    error : err
-                })
+                return err_response(res,LOG_FAIL,err,500);
             }
-            
+    
             if(!resp){
-                return res.json({
-                    message : 'Invalid username/password',
-                    context : INV_PASS
-                })
-                .status(500);
+                return err_response(res,`${INV_USER}/${INV_PASS}`,LOG_FAIL,404);
             }
             if(resp){
                 const token = jwt.sign({
@@ -354,9 +277,7 @@ const login = (req,res,next)=>{
                     username    : result[0].username,
                     email       : result[0].email,
                     phone_number: result[0].phone_number
-                },JWT_TOKEN,{
-                    expiresIn   : '7d'
-                });
+                },JWT_TOKEN);
     
                 return res.status(200).json({
                     message     : 'Success',
@@ -364,7 +285,6 @@ const login = (req,res,next)=>{
                     token       : `Bearer ${token}`,
                     success     : true
                 })
-                .status(200)
                 .send();
             }
             
@@ -374,11 +294,22 @@ const login = (req,res,next)=>{
     start();
 }
 
+const logout = (req,res,next)=>{
+   
+    // req.user = null;
+    // console.log(req.user);
+    res.json({
+        message : 'Sucessfully logged out'
+    })
+    .send({auth : false, token:null});
+}
+
 
 module.exports = {
     getUsers,
     getUserById,
     createUser,
     updateUser,
-    login
+    login,
+    logout
 }
