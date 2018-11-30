@@ -4,4 +4,4 @@ build:
   languages:
     - nodejs
 run:
-  web: forever start server.js
+  web: npm start
