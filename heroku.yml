@@ -1,0 +1,7 @@
+setup:
+  config: {}
+build:
+  languages:
+    - nodejs
+run:
+  web: npm start
