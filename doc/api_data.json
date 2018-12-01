@@ -2,7 +2,7 @@
   {
     "type": "post",
     "url": "v1/roles",
-    "title": "Create User",
+    "title": "Create Roles",
     "name": "Create_Role",
     "group": "Roles",
     "parameter": {

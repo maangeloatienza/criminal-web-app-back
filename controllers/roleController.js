@@ -12,7 +12,7 @@ const role = {
 
 
 /**
- * @api {post} v1/roles                     Create User 
+ * @api {post} v1/roles                     Create Roles 
  * @apiName Create Role
  * @apiGroup Roles
  * 

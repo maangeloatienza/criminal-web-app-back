@@ -6,7 +6,7 @@ const mysql           = require('anytv-node-mysql');
 const dataManagement  = require('./routes/dataManagement');
 const app             = express();
 const MASTER_DB       = require('./config/db_config');
-const apidoc          = __dirname + '/apidoc';
+const apidoc          = __dirname + '/doc';
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
