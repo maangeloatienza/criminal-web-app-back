@@ -37,14 +37,17 @@ const user_login = {
 
 
 /**
- * @api {get} /users            Request User information
- * @apiName GetUser
+ * @api {get} v1/users                      Request User information
+ * @apiName Get Users
  * @apiGroup Users
  *
  * 
- * @apiSuccess {String}   first_name  First name of the user
- * @apiSuccess {String}   last_name   Last name of the user
- * @apiSuccess {String}   username    Username of the user
+ * @apiSuccess {String}     first_name      First name of the user
+ * @apiSuccess {String}     last_name       Last name of the user
+ * @apiSuccess {String}     username        Username of the user
+ * @apiSuccess {String}     email           Email address of the user
+ * @apiSuccess {String}     phone_number    Phone number of the user
+ * @apiSuccess {String}     role_id         Role id of the user
  */
 
 
@@ -84,6 +87,20 @@ const getUsers = (req,res,next)=>{
 
     start();
 }
+/**
+ * @api {get} v1/users/:id                  Request User information
+ * @apiName Get User By Id
+ * @apiGroup Users
+ * 
+ * @apiParam   {String}     id              Id of the user
+ * 
+ * @apiSuccess {String}     first_name      First name of the user
+ * @apiSuccess {String}     last_name       Last name of the user
+ * @apiSuccess {String}     username        Username of the user
+ * @apiSuccess {String}     email           Email address of the user
+ * @apiSuccess {String}     phone_number    Phone number of the user
+ * @apiSuccess {String}     role_id         Role id of the user
+ */
 
 const getUserById = (req,res,next)=>{
     const id = req.params.id;
@@ -115,6 +132,22 @@ const getUserById = (req,res,next)=>{
 
     start();
 }
+
+/**
+ * @api {post} v1/users                     Create User 
+ * @apiName Create User
+ * @apiGroup Users
+ * 
+ * 
+ * @apiParam {String}       first_name      First name of the user
+ * @apiParam {String}       last_name       Last name of the user
+ * @apiParam {String}       username        Username of the user
+ * @apiParam {String}       password        Password of the user
+ * @apiParam {String}       confirm_password Confirm user's Password 
+ * @apiParam {String}       email           Email address of the user
+ * @apiParam {String}       phone_number    Phone number of the user
+ * @apiParam {String}       role_id         Role id of the user
+ */
 
 
 const createUser = (req,res,next)=>{
@@ -183,6 +216,20 @@ const createUser = (req,res,next)=>{
     start();
 }
 
+/**
+ * @api {put}  v1/users/:id                 Update User information 
+ * @apiName  Update User
+ * @apiGroup Users
+ * 
+ * @apiParam {String}       [first_name]    First name of the user
+ * @apiParam {String}       [last_name]     Last name of the user
+ * @apiParam {String}       [username]      Username of the user
+ * @apiParam {String}       [password]      Password of the user
+ * @apiParam {String}       [email]         Email address of the user
+ * @apiParam {String}       [phone_number]  Phone number of the user
+ * @apiParam {String}       [role_id]       Role id of the user
+ */
+
 const updateUser = (req,res,next)=>{
     const data = util._get
     .form_data(opt_user)
@@ -232,6 +279,14 @@ const updateUser = (req,res,next)=>{
 
     start();
 }
+/**
+ * @api {post} v1/users/login               Login User information
+ * @apiName  Login User
+ * @apiGroup Users
+ * 
+ * @apiParam {String}       [username]      Username of the user
+ * @apiParam {String}       [password]      Password of the user
+ */
 
 const login = (req,res,next)=>{
 

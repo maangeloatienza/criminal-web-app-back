@@ -10,6 +10,18 @@ const role = {
     name : '',
 }
 
+
+/**
+ * @api {post} v1/roles                     Create User 
+ * @apiName Create Role
+ * @apiGroup Roles
+ * 
+ * 
+ * @apiParam {String}       name            Name of the role
+ */
+
+
+
 const createRole = (req,res,next)=>{
     let data = util._get
     .form_data(role)

@@ -20,6 +20,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/v1',dataManagement);
+app.use('/apidoc', express.static(apidoc));
 
 
 app.use('/', (req,res)=>{
