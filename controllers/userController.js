@@ -314,7 +314,7 @@ const login = (req,res,next)=>{
         if(err){
             return err_response(res,BAD_REQ,err,500);
         }
-;       console.log(result);
+
         if(!result.length){
             return err_response(res,ZERO_RES,ZERO_RES,404);
         }
@@ -363,8 +363,6 @@ const login = (req,res,next)=>{
 
 const logout = (req,res,next)=>{
    
-    // req.user = null;
-    // console.log(req.user);
     res.json({
         message : 'Sucessfully logged out'
     })

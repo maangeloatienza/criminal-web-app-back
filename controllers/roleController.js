@@ -78,8 +78,41 @@ const createRole = (req,res,next)=>{
     start();
 }
 
+/**
+ * @api {get} v1/roles                      Fetch Roles 
+ * @apiName Fetch Role
+ * @apiGroup Roles
+ * 
+ * 
+ * @apiParam {String}       name            Name of the role
+ */
+
+const getRole = (req,res)=>{
+    function start(){
+        mysql.use('master')
+            .query('SELECT * FROM roles',
+                send_response
+            ).end();
+    }
+    function send_response(err,result,args,last_query){
+        if(err){
+            return err_response(res,BAD_REQ,err,500);
+        }
+        if(!result.length){
+            return err_response(res,ZERO_RES,ZERO_RES,404);
+        }
+
+        return res.json({
+            message : 'Success!',
+            data : result
+        })
+        .send();
+    }
+    start();
+}
 
 
 module.exports = {
-    createRole
+    createRole,
+    getRole
 }
