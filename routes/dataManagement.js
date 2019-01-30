@@ -11,7 +11,7 @@ const roleController    = require('./../controllers/roleController');
 
 router.get  ('/users',              checkAuthorization, userController.getUsers);
 router.get  ('/users/:id',                              userController.getUserById);
-router.post ('/users',              checkAuthorization, userController.createUser);
+router.post ('/users',                                  userController.createUser);
 router.put  ('/users/:id',          checkAuthorization, userController.updateUser);
 router.post ('/users/login',                            userController.login);
 router.post ('/users/logout',       checkAuthorization, userController.logout);
