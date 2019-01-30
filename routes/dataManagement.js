@@ -9,13 +9,15 @@ const passport          = require('passport');
 const userController    = require('./../controllers/userController');
 const roleController    = require('./../controllers/roleController');
 
-router.get  ('/users',              userController.getUsers);
-router.get  ('/users/:id',          userController.getUserById);
-router.post ('/users',              userController.createUser);
-router.put  ('/users/:id',          userController.updateUser);
-router.post ('/users/login',        userController.login);
-router.get  ('/users/logout',       userController.logout);
+router.get  ('/users',              checkAuthorization, userController.getUsers);
+router.get  ('/users/:id',                              userController.getUserById);
+router.post ('/users',              checkAuthorization, userController.createUser);
+router.put  ('/users/:id',          checkAuthorization, userController.updateUser);
+router.post ('/users/login',                            userController.login);
+router.post ('/users/logout',       checkAuthorization, userController.logout);
 
-router.post ('/roles',              roleController.createRole);
+router.post ('/roles',              checkAuthorization, roleController.createRole);
+router.get  ('/roles',                                  roleController.getRole);
+
 
 module.exports = router;

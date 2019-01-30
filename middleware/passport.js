@@ -1,8 +1,8 @@
 const   JwtStrategy = require('passport-jwt').Strategy,
         ExtractJwt  = require('passport-jwt').ExtractJwt,
-        //passport    = require('passport'),
+        passport    = require('passport'),
         mysql       = require('anytv-node-mysql');
-                      require('./../config/config')
+                      require('./../config/config');
 
 
 module.exports = (passport)=>{
@@ -10,17 +10,7 @@ module.exports = (passport)=>{
     opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken('jwt');
     opts.secretOrKey = SECRET_KEY;
     passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-        // User.findOne({id: jwt_payload.sub}, function(err, user) {
-        //     if (err) {
-        //         return done(err, false);
-        //     }
-        //     if (user) {
-        //         return done(null, user);
-        //     } else {
-        //         return done(null, false);
-        //         // or you could create a new account
-        //     }
-        // });
+
         function start(){
             mysql.use('master')
                 .query('SELECT * from users where id = ?',

@@ -26,3 +26,9 @@ CREATE TABLE users (
 );
 
 ALTER TABLE users ADD CONSTRAINT FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`);
+
+CREATE TABLE tokens (
+  `id` VARCHAR(64) NOT NULL PRIMARY KEY,
+  `token` LONGTEXT NOT NULL,
+  `created` DATETIME DEFAULT NULL
+);

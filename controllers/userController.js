@@ -59,9 +59,6 @@ const getUsers = (req,res,next)=>{
         last_name
     } = req.query;
     function start(){
-
-
-
         mysql.use('master')
         .query(
             `SELECT * FROM users`,
@@ -179,7 +176,7 @@ const createUser = (req,res,next)=>{
         data.role_id = data.role_id? data.role_id : null;
 
         bcrypt.hash(data.password, 10, function(err, hash) {
-            if(err) console.log(err);
+            if(err) err_response(res,err,BAD_REQ,500);
             password = hash;
             mysql.use('master')
             .query(`INSERT INTO users SET ?`,
@@ -298,7 +295,6 @@ const login = (req,res,next)=>{
         if(data instanceof Error){
             return err_response(res,data.message,INC_DATA,500);
         }
-        console.log(req.body.username);
         mysql.use('master')
             .query(`SELECT user.*,role.* FROM users user
                     LEFT JOIN roles role
@@ -345,6 +341,10 @@ const login = (req,res,next)=>{
                     email       : result[0].email,
                     phone_number: result[0].phone_number
                 },JWT_TOKEN);
+
+                if(saveToken(res,token)===false){
+                    return err_response(res,NO_TOKEN_CREATED,err,500);
+                }
     
                 return res.status(200).json({
                     message     : 'Success',
@@ -362,11 +362,88 @@ const login = (req,res,next)=>{
 }
 
 const logout = (req,res,next)=>{
-   
-    res.json({
-        message : 'Sucessfully logged out'
-    })
-    .send({auth : false, token:null});
+    let token = req.user.token;
+
+    function start(){
+        mysql.use('master')
+        .query(
+            `
+                SELECT * FROM tokens WHERE token = ?
+            `,
+            token,
+            validate_token
+        )
+        .end();
+    }
+
+    function validate_token(err,result,args,last_query){
+        if(err){
+            return err_response(res,err,BAD_REQ,500);
+        }
+
+        if(!result.length){
+            return err_response(res,NO_ACTIVE_TOKEN,NO_TOKEN,404);
+        }
+
+        mysql.use('master')
+        .query(`
+            DELETE FROM tokens WHERE token = ?
+        `,
+        token,
+        send_response
+        )
+        .end();
+    }
+
+    function send_response(err,result,args,last_query){
+        if(err){
+            return err_response(res,err,BAD_REQ,500);
+        }
+
+        if(!result.affectedRows){
+            return err_response(res,NO_TOKEN_DELETED,ZERO_RES,404);
+        }
+        return res.json({
+            message : 'Sucessfully logged out'
+        })
+        .send();
+        
+    }
+    start();
+}
+
+
+function saveToken(res,token){
+    let data = {};
+
+    data.id = uuidv4();
+    data.token = token;
+    data.created = new Date();
+    function start(){
+        mysql.use('master')
+            .query(
+                `
+                    INSERT INTO tokens SET ?
+                `,
+                data,
+                validate_token
+            )
+            .end();
+    }
+
+    function validate_token(err,result,args,last_query){
+        if(err){
+            return false
+        }
+
+        if(!result.affectedRows){
+            return false
+        }
+
+        return true;
+    }
+
+    start();
 }
 
 
