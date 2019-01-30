@@ -361,6 +361,13 @@ const login = (req,res,next)=>{
     start();
 }
 
+
+/**
+ * @api {put}  v1/users/logout                 Logout User 
+ * @apiName  Logout User
+ * @apiGroup Users
+*/
+
 const logout = (req,res,next)=>{
     let token = req.user.token;
 

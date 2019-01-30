@@ -16,7 +16,6 @@ const role = {
  * @apiName Create Role
  * @apiGroup Roles
  * 
- * 
  * @apiParam {String}       name            Name of the role
  */
 
@@ -84,7 +83,6 @@ const createRole = (req,res,next)=>{
  * @apiGroup Roles
  * 
  * 
- * @apiParam {String}       name            Name of the role
  */
 
 const getRole = (req,res)=>{
