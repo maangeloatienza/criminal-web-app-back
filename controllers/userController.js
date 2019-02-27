@@ -177,7 +177,7 @@ const createUser = (req,res,next)=>{
 
         bcrypt.hash(data.password, 10, function(err, hash) {
             if(err) err_response(res,err,BAD_REQ,500);
-            password = hash;
+            data.password = hash;
             mysql.use('master')
             .query(`INSERT INTO users SET ?`,
                 data,
